@@ -12,6 +12,7 @@
 /* Layout concept: a real magazine floating over a taupe backdrop. Leaves hinge on the spine (3D),
    a spread on wide screens, one page with a camera pan on phones. Page styles: Noir, Paper, Poster. */
 :root{
+  --page-turn-duration:420ms;
   --bg:#857d74;
   --ink:#30251d;
   --charcoal:#2e2925;
@@ -43,9 +44,9 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 .stage:not(.is-wide) .world{perspective:2000px}
 .shadow{position:absolute;left:50%;top:calc(100% + 10px);width:var(--sw);height:38px;border-radius:50%;pointer-events:none;
   background:radial-gradient(closest-side,rgba(20,14,10,.55),rgba(20,14,10,0));filter:blur(7px);
-  transform:translateX(calc(-50% + var(--shift)));transition:transform .95s cubic-bezier(.45,.05,.2,1),width .95s}
+  transform:translateX(calc(-50% + var(--shift)));transition:transform var(--page-turn-duration) cubic-bezier(.2,.7,.25,1),width var(--page-turn-duration)}
 .rig,.book{position:absolute;inset:0;transform-style:preserve-3d}
-.rig{transform:translateX(var(--shift));transition:transform .95s cubic-bezier(.45,.05,.2,1)}
+.rig{transform:translateX(var(--shift));transition:transform var(--page-turn-duration) cubic-bezier(.2,.7,.25,1)}
 .page-arrow{position:absolute;top:50%;z-index:50;display:grid;place-items:center;width:44px;height:52px;border:1px solid rgba(255,255,255,.32);
   border-radius:14px;background:rgba(38,30,24,.46);color:#fff8ed;box-shadow:0 6px 20px rgba(0,0,0,.16);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transform:translateY(-50%);transition:background .2s,opacity .2s,border-color .2s}
@@ -58,9 +59,9 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 /* page stacks give the book its thickness */
 .stack-r,.stack-l{position:absolute;top:0;width:var(--pw);height:var(--ph);background:#efe8dc;transform:translateZ(-1px)}
 .stack-r{left:50%;--d:calc(var(--nr)*1.5px)}
-.stack-l{right:50%;--d:calc(var(--nl)*1.5px);transition:opacity .45s ease}
+.stack-l{right:50%;--d:calc(var(--nl)*1.5px);transition:opacity var(--page-turn-duration) ease}
 .stage.is-front .stack-l{opacity:0;pointer-events:none}
-.stack-r::before,.stack-l::before,.stack-r::after,.stack-l::after{content:"";position:absolute;transition:width .95s,height .95s,left .95s,right .95s}
+.stack-r::before,.stack-l::before,.stack-r::after,.stack-l::after{content:"";position:absolute;transition:width var(--page-turn-duration),height var(--page-turn-duration),left var(--page-turn-duration),right var(--page-turn-duration)}
 .stack-r::after{left:100%;top:1px;bottom:calc(var(--d)*-1);width:var(--d);background:repeating-linear-gradient(90deg,#c9c0af 0 1px,#f7f2e9 1px 2px)}
 .stack-r::before{top:100%;left:0;right:calc(var(--d)*-1);height:var(--d);background:repeating-linear-gradient(180deg,#c9c0af 0 1px,#f7f2e9 1px 2px)}
 .stack-l::after{right:100%;top:1px;bottom:calc(var(--d)*-1);width:var(--d);background:repeating-linear-gradient(270deg,#c9c0af 0 1px,#f7f2e9 1px 2px)}
@@ -68,13 +69,13 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 
 /* ---------- leaves and faces ---------- */
 .leaf{position:absolute;left:50%;top:0;width:var(--pw);height:var(--ph);transform-origin:0 50%;transform-style:preserve-3d;
-  transition:transform .95s cubic-bezier(.45,.05,.2,1);transition-delay:var(--d,0ms)}
+  transition:transform var(--page-turn-duration) cubic-bezier(.2,.7,.25,1);transition-delay:var(--d,0ms)}
 .face{position:absolute;inset:0;overflow:hidden;container-type:size;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--charcoal)}
 .face.l{transform:rotateY(180deg)}
 .face::before{content:"";position:absolute;inset:0;z-index:40;pointer-events:none}
 .face.r::before{background:linear-gradient(90deg,rgba(0,0,0,.42),rgba(0,0,0,.14) 4%,rgba(0,0,0,0) 12%)}
 .face.l::before{background:linear-gradient(270deg,rgba(0,0,0,.42),rgba(0,0,0,.14) 4%,rgba(0,0,0,0) 12%)}
-.face::after{content:"";position:absolute;inset:0;z-index:41;pointer-events:none;opacity:0;background:rgba(0,0,0,.4);transition:opacity .95s;transition-delay:var(--d,0ms)}
+.face::after{content:"";position:absolute;inset:0;z-index:41;pointer-events:none;opacity:0;background:rgba(0,0,0,.4);transition:opacity var(--page-turn-duration);transition-delay:var(--d,0ms)}
 .leaf.flipped .face.r::after{opacity:1}
 .leaf:not(.flipped) .face.l::after{opacity:1}
 .stage.no-anim *,.stage.no-anim *::before,.stage.no-anim *::after{transition:none!important}
@@ -357,6 +358,8 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 'use strict';
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const PAGE_TURN_STAGGER_MS = 22;
+const MAX_PAGE_TURN_STAGGER_MS = 88;
 const E = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const pad = n => String(n).padStart(2,'0');
 const FOOT = '<p class="foot">Bougainville Café Lounge · depuis 2011</p>';
@@ -812,8 +815,8 @@ function render(prevF, instant){
     const flipped = k < f;
     let d = 0;
     if(!instant && span>1){
-      if(fwd && k>=prevF && k<f) d = (k-prevF)*85;
-      if(!fwd && k>=f && k<prevF) d = (prevF-1-k)*85;
+      if(fwd && k>=prevF && k<f) d = Math.min((k-prevF)*PAGE_TURN_STAGGER_MS,MAX_PAGE_TURN_STAGGER_MS);
+      if(!fwd && k>=f && k<prevF) d = Math.min((prevF-1-k)*PAGE_TURN_STAGGER_MS,MAX_PAGE_TURN_STAGGER_MS);
     }
     lf.style.setProperty('--d', d+'ms');
     lf.classList.toggle('flipped', flipped);
@@ -851,7 +854,6 @@ function setPage(np, instant){
   np = Math.max(0, Math.min(N-1, np));
   const prevF = f;
   p = np; f = Math.ceil(p/2);
-  if(!instant && p===np && f===prevF && visPrev.has(np) && !wide && false) return;
   render(prevF, instant);
 }
 const next = () => { if(wide){ if(f<MAXF) setPage(2*(f+1)-1); } else setPage(p+1); };
