@@ -35,22 +35,25 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 
 /* ---------- stage, world, camera ---------- */
 .stage{position:fixed;inset:0;overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none;
-  background:radial-gradient(72% 62% at 50% 40%,#aaa197 0%,#8a8279 52%,#5d564f 100%);--tx:5deg;--ty:0deg;--tz:0deg}
+  background:radial-gradient(72% 62% at 50% 40%,#aaa197 0%,#8a8279 52%,#5d564f 100%)}
 .stage::before{content:"";position:absolute;inset:-18px;z-index:0;pointer-events:none;background:url("photo2.jpeg") center/cover no-repeat;
   filter:blur(16px) brightness(.48) saturate(.58);opacity:.62;transform:scale(1.04)}
-.stage.is-wide{--tx:7deg;--ty:-1deg;--tz:0deg}
 .world{position:absolute;left:50%;top:50%;width:calc(var(--pw)*2);height:var(--ph);margin-left:calc(var(--pw)*-1);margin-top:calc(var(--ph)*-.5);
   z-index:1;perspective:2800px;perspective-origin:50% 46%;--shift:0px;--sw:300px}
 .stage:not(.is-wide) .world{perspective:2000px}
 .shadow{position:absolute;left:50%;top:calc(100% + 10px);width:var(--sw);height:38px;border-radius:50%;pointer-events:none;
   background:radial-gradient(closest-side,rgba(20,14,10,.55),rgba(20,14,10,0));filter:blur(7px);
-  transform:translateX(calc(-50% + var(--shift)));transition:transform .95s cubic-bezier(.45,.05,.2,1),width .95s;animation:shadowb 6s ease-in-out infinite}
-@keyframes shadowb{0%,100%{opacity:1;scale:1}50%{opacity:.72;scale:.93}}
-.float,.tilt,.rig,.book{position:absolute;inset:0;transform-style:preserve-3d}
-.float{animation:bob 8s ease-in-out infinite}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-.tilt{transform:rotateX(var(--tx)) rotateY(var(--ty)) rotateZ(var(--tz));transition:transform .5s ease-out}
+  transform:translateX(calc(-50% + var(--shift)));transition:transform .95s cubic-bezier(.45,.05,.2,1),width .95s}
+.rig,.book{position:absolute;inset:0;transform-style:preserve-3d}
 .rig{transform:translateX(var(--shift));transition:transform .95s cubic-bezier(.45,.05,.2,1)}
+.page-arrow{position:absolute;top:50%;z-index:50;display:grid;place-items:center;width:44px;height:52px;border:1px solid rgba(255,255,255,.32);
+  border-radius:14px;background:rgba(38,30,24,.46);color:#fff8ed;box-shadow:0 6px 20px rgba(0,0,0,.16);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transform:translateY(-50%);transition:background .2s,opacity .2s,border-color .2s}
+.page-arrow:hover:not(:disabled){background:rgba(38,30,24,.72);border-color:rgba(255,255,255,.58)}
+.page-arrow:disabled{opacity:.28;cursor:default}
+.page-arrow svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.page-arrow.prev{left:max(12px,env(safe-area-inset-left,0px))}
+.page-arrow.next{right:max(12px,env(safe-area-inset-right,0px))}
 
 /* page stacks give the book its thickness */
 .stack-r,.stack-l{position:absolute;top:0;width:var(--pw);height:var(--ph);background:#efe8dc;transform:translateZ(-1px)}
@@ -229,6 +232,9 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
 @media (max-width:360px){
+  .page-arrow{width:36px;height:44px;border-radius:12px}
+  .page-arrow.prev{left:max(6px,env(safe-area-inset-left,0px))}
+  .page-arrow.next{right:max(6px,env(safe-area-inset-right,0px))}
   .gut{padding-block:18px}
   .col{padding-inline:4px}
   .noir .nm,.paper .nm{font-size:14px}
@@ -278,6 +284,9 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
   .c-back{margin:.5em auto 0;padding:.4em 1em;font-size:10px}
 }
 @media (orientation:landscape) and (max-height:500px){
+  .page-arrow{width:36px;height:42px}
+  .page-arrow.prev{left:max(8px,env(safe-area-inset-left,0px))}
+  .page-arrow.next{right:max(8px,env(safe-area-inset-right,0px))}
   .gut{padding-block:4px}
   .paper .gut{padding-top:12px}
   .cv{gap:1px;padding:4px 16px}
@@ -332,8 +341,14 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 <div class="stage" id="stage">
   <div class="world" id="world">
     <div class="shadow"></div>
-    <div class="float"><div class="tilt" id="tilt"><div class="rig"><div class="book" id="book" role="group" aria-label="Menu Bougainville Café Lounge"></div></div></div></div>
+    <div class="rig"><div class="book" id="book" role="group" aria-label="Menu Bougainville Café Lounge"></div></div>
   </div>
+  <button class="page-arrow prev" id="pagePrev" type="button" aria-label="Page précédente" aria-controls="book" disabled>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+  </button>
+  <button class="page-arrow next" id="pageNext" type="button" aria-label="Page suivante" aria-controls="book">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+  </button>
 </div>
 <noscript><p style="padding:24px">Le menu demande JavaScript pour tourner les pages.</p></noscript>
 
@@ -657,8 +672,9 @@ function chicha(){
 /* ================= BUILD ================= */
 const stage = document.getElementById('stage');
 const world = document.getElementById('world');
-const tilt = document.getElementById('tilt');
 const book = document.getElementById('book');
+const pagePrev = document.getElementById('pagePrev');
+const pageNext = document.getElementById('pageNext');
 
 book.innerHTML = '<div class="stack-r"></div><div class="stack-l"></div>';
 
@@ -777,7 +793,6 @@ function layout(){
     stage.style.setProperty('--pw', pw+'px');
     stage.style.setProperty('--ph', ph+'px');
     stage.classList.add('is-wide');
-    tilt.style.removeProperty('--tx'); tilt.style.removeProperty('--ty');
     return;
   }
   let w = Math.min((H-118)*0.68, (W-56)/2, 560), h = w/0.68;
@@ -787,7 +802,6 @@ function layout(){
   stage.style.setProperty('--pw', pw+'px');
   stage.style.setProperty('--ph', ph+'px');
   stage.classList.toggle('is-wide', wide);
-  tilt.style.removeProperty('--tx'); tilt.style.removeProperty('--ty');
 }
 
 function render(prevF, instant){
@@ -825,6 +839,8 @@ function render(prevF, instant){
     if(v && !visPrev.has(i)){ const sc = el.querySelector('.scroll'); if(sc) sc.scrollTop = 0; }
   });
   visPrev = vis;
+  pagePrev.disabled = wide ? f===0 : p===0;
+  pageNext.disabled = wide ? f>=MAXF : p>=N-1;
   if(vis.has(IDX['offre-chicha'])) smoke.start(); else smoke.stop();
 
   try{ history.replaceState(null,'','#'+PAGES[p].id); }catch(e){}
@@ -841,6 +857,8 @@ function setPage(np, instant){
 const next = () => { if(wide){ if(f<MAXF) setPage(2*(f+1)-1); } else setPage(p+1); };
 const prev = () => { if(wide){ if(f>0) setPage(f===1 ? 0 : 2*(f-1)-1); } else setPage(p-1); };
 
+pagePrev.addEventListener('click', prev);
+pageNext.addEventListener('click', next);
 stage.addEventListener('click', e => { const t = e.target.closest('[data-go]'); if(t && t.dataset.go in IDX) setPage(IDX[t.dataset.go]); });
 document.addEventListener('keydown', e => { if(e.key==='ArrowRight') next(); else if(e.key==='ArrowLeft') prev(); });
 
@@ -852,12 +870,6 @@ stage.addEventListener('pointerup', e => {
   if(Math.abs(dx)>46 && Math.abs(dx)>Math.abs(dy)*1.4){ dx<0 ? next() : prev(); }
 });
 stage.addEventListener('pointercancel', () => { tracking=false; });
-stage.addEventListener('pointermove', e => {
-  if(!wide || e.pointerType!=='mouse' || reduced) return;
-  const nx = e.clientX/innerWidth - .5, ny = e.clientY/innerHeight - .5;
-  tilt.style.setProperty('--ty', (-3 + nx*9)+'deg');
-  tilt.style.setProperty('--tx', (15 - ny*6)+'deg');
-});
 addEventListener('hashchange', () => { const id = location.hash.slice(1); if(id in IDX && IDX[id]!==p) setPage(IDX[id]); });
 addEventListener('resize', () => {
   if((innerWidth>innerHeight && innerHeight<500)!==compactLandscape){ location.reload(); return; }
