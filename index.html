@@ -35,18 +35,20 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 
 /* ---------- stage, world, camera ---------- */
 .stage{position:fixed;inset:0;overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none;
-  background:linear-gradient(rgba(54,44,37,.58),rgba(54,44,37,.58)),url("photo2.jpeg") center/cover no-repeat;--tx:5deg;--ty:0deg;--tz:0deg}
-.stage.is-wide{--tx:15deg;--ty:-3deg;--tz:-2deg}
+  background:radial-gradient(72% 62% at 50% 40%,#aaa197 0%,#8a8279 52%,#5d564f 100%);--tx:5deg;--ty:0deg;--tz:0deg}
+.stage::before{content:"";position:absolute;inset:-18px;z-index:0;pointer-events:none;background:url("photo2.jpeg") center/cover no-repeat;
+  filter:blur(16px) brightness(.48) saturate(.58);opacity:.62;transform:scale(1.04)}
+.stage.is-wide{--tx:7deg;--ty:-1deg;--tz:0deg}
 .world{position:absolute;left:50%;top:50%;width:calc(var(--pw)*2);height:var(--ph);margin-left:calc(var(--pw)*-1);margin-top:calc(var(--ph)*-.5);
-  perspective:2300px;perspective-origin:50% 42%;--shift:0px;--sw:300px}
-.stage:not(.is-wide) .world{perspective:1700px}
+  z-index:1;perspective:2800px;perspective-origin:50% 46%;--shift:0px;--sw:300px}
+.stage:not(.is-wide) .world{perspective:2000px}
 .shadow{position:absolute;left:50%;top:calc(100% + 10px);width:var(--sw);height:38px;border-radius:50%;pointer-events:none;
   background:radial-gradient(closest-side,rgba(20,14,10,.55),rgba(20,14,10,0));filter:blur(7px);
   transform:translateX(calc(-50% + var(--shift)));transition:transform .95s cubic-bezier(.45,.05,.2,1),width .95s;animation:shadowb 6s ease-in-out infinite}
 @keyframes shadowb{0%,100%{opacity:1;scale:1}50%{opacity:.72;scale:.93}}
 .float,.tilt,.rig,.book{position:absolute;inset:0;transform-style:preserve-3d}
-.float{animation:bob 6s ease-in-out infinite}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.float{animation:bob 8s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .tilt{transform:rotateX(var(--tx)) rotateY(var(--ty)) rotateZ(var(--tz));transition:transform .5s ease-out}
 .rig{transform:translateX(var(--shift));transition:transform .95s cubic-bezier(.45,.05,.2,1)}
 
@@ -82,7 +84,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 
 /* ---------- COVER ---------- */
 .cover{background:linear-gradient(165deg,#3a251d 0%,#211713 52%,#120c0d 100%);color:#fff}
-.cover-photo{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;opacity:.48;filter:brightness(.62) saturate(.78);pointer-events:none}
+.cover-photo{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;opacity:.38;filter:brightness(.68) saturate(.72);pointer-events:none}
 .cv-frame{position:absolute;inset:14px;z-index:3;border:1px solid rgba(200,146,58,.65);pointer-events:none}
 .cv{min-height:100%;display:flex;flex-direction:column;gap:6px;padding:clamp(20px,4cqh,30px) max(32px,env(safe-area-inset-right,0px)) clamp(20px,4cqh,30px) max(32px,env(safe-area-inset-left,0px))}
 .cv-top{text-align:center;font:500 10.5px var(--f-sans);letter-spacing:.34em;text-transform:uppercase;color:#ead9bf}
@@ -113,10 +115,10 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 .ph-s{margin:0;font:300 14px var(--f-sans);letter-spacing:.2em;text-transform:uppercase;color:#f0e2cf}
 
 /* ---------- MENU PHOTOGRAPHY ---------- */
-.menu-art{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;object-position:center;opacity:.3;filter:saturate(.88);pointer-events:none;user-select:none}
-.noir .menu-art{opacity:.28;filter:brightness(.72) saturate(.82)}
-.paper .menu-art{opacity:.22;filter:saturate(.78)}
-.poster .menu-art{opacity:.34;filter:brightness(.72) saturate(.85)}
+.menu-art{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;object-position:center;opacity:.2;filter:saturate(.72);pointer-events:none;user-select:none}
+.noir .menu-art{opacity:.14;filter:brightness(.68) saturate(.72)}
+.paper .menu-art{opacity:.1;filter:saturate(.68)}
+.poster .menu-art{opacity:.18;filter:brightness(.68) saturate(.72)}
 
 /* ---------- NOIR ---------- */
 .noir{background:radial-gradient(120% 55% at 100% 0%,rgba(227,154,45,.11),transparent 60%),var(--charcoal);color:#f2ebe3}
